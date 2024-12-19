@@ -24,6 +24,29 @@ int server_setup() {
   returns the file descriptor for the upstream pipe (see server setup).
   =========================*/
 int server_handshake(int *to_client) {
+  char *pipe_name = "WKP";
+  mkfifo(pipe_name, 0666);
+
+  // waiting for connection
+  int fd = open(pipe_name, O_RDONLY);
+  char output_text[200];
+  read(fd, output_text, 200);
+  
+  // got connection
+  close(fd);
+  remove(pipe_name);
+
+  // connect to PP
+  fd = open(output_text, O_WRONLY);
+  write(fd, 8, sizeof(int)); // should be random int
+
+  int ack_number;
+  read(fd, ack_number, sizeof(int)); // should be random int
+
+  if (ack_number == 9) {
+    printf("Connection successful\n");
+  }
+
   int from_client;
   return from_client;
 }
@@ -40,6 +63,20 @@ int server_handshake(int *to_client) {
   =========================*/
 int client_handshake(int *to_server) {
   int from_server;
+  char *pipe_name = sprintf("%s_pipe", getpid());
+  mkfifo(pipe_name, 0666);
+
+  char *server_pipe = "WKP";
+
+  int fd;
+  fd = open(server_pipe, O_WRONLY); // should have both permissions
+  write(fd, pipe_name, sizeof(pipe_name));
+
+  int ack_number;
+  read(fd, ack_number, sizeof(int));
+
+  write(fd, pipe_name+1, sizeof(pipe_name));
+
   return from_server;
 }
 

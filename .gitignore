@@ -54,3 +54,5 @@ dkms.conf
 *.swp
 client
 server
+client_exec
+server_exec

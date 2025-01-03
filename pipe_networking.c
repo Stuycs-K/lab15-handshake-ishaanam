@@ -28,20 +28,24 @@ int server_handshake(int *to_client) {
   mkfifo(pipe_name, 0666);
 
   // waiting for connection
+  printf("waiting for connection\n");
   int fd = open(pipe_name, O_RDONLY);
   char output_text[200];
   read(fd, output_text, 200);
   
   // got connection
+  printf("got connection\n");
   close(fd);
   remove(pipe_name);
 
   // connect to PP
+  printf("connect to PP\n");
   fd = open(output_text, O_WRONLY);
-  write(fd, 8, sizeof(int)); // should be random int
+  int num = 8;
+  write(fd, &num, sizeof(int)); // should be random int
 
   int ack_number;
-  read(fd, ack_number, sizeof(int)); // should be random int
+  read(fd, &ack_number, sizeof(int)); // should be random int
 
   if (ack_number == 9) {
     printf("Connection successful\n");
@@ -63,19 +67,22 @@ int server_handshake(int *to_client) {
   =========================*/
 int client_handshake(int *to_server) {
   int from_server;
-  char *pipe_name = sprintf("%s_pipe", getpid());
+  pid_t pid = getpid();
+  char pipe_name[BUFFER_SIZE];
+  sprintf(pipe_name, "%d_pipe", pid);
   mkfifo(pipe_name, 0666);
 
   char *server_pipe = "WKP";
 
   int fd;
-  fd = open(server_pipe, O_WRONLY); // should have both permissions
+  printf("connecting\n");
+  fd = open(server_pipe, O_RDWR);
   write(fd, pipe_name, sizeof(pipe_name));
 
   int ack_number;
-  read(fd, ack_number, sizeof(int));
+  read(fd, &ack_number, sizeof(int));
 
-  write(fd, pipe_name+1, sizeof(pipe_name));
+  write(fd, pipe_name, sizeof(pipe_name));
 
   return from_server;
 }

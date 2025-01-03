@@ -1,9 +1,12 @@
-all: client server
-client: basic_client.o pipe_networking.o
-	gcc -o client basic_client.o pipe_networking.o
+.PHONY: clean compile client server
+compile: basic_client.o basic_server.o pipe_networking.o
+	gcc -o client_exec basic_client.o pipe_networking.o
+	gcc -o server_exec basic_server.o pipe_networking.o
+client: client_exec
+	./client
 
-server: basic_server.o pipe_networking.o
-	gcc -o server basic_server.o pipe_networking.o
+server: server_exec
+	./server
 
 basic_client.o: basic_client.c pipe_networking.h
 	gcc -c basic_client.c
@@ -16,4 +19,3 @@ pipe_networking.o: pipe_networking.c pipe_networking.h
 
 clean:
 	rm *.o
-	rm *~

@@ -11,19 +11,6 @@
   =========================*/
 int server_setup() {
   int from_client = 0;
-  return from_client;
-}
-
-/*=========================
-  server_handshake 
-  args: int * to_client
-
-  Performs the server side pipe 3 way handshake.
-  Sets *to_client to the file descriptor to the downstream pipe (Client's private pipe).
-
-  returns the file descriptor for the upstream pipe (see server setup).
-  =========================*/
-int server_handshake(int *to_client) {
   char *pipe_name = "WKP";
   mkfifo(pipe_name, 0666);
 
@@ -38,9 +25,23 @@ int server_handshake(int *to_client) {
   close(fd);
   remove(pipe_name);
 
-  // connect to PP
   printf("connect to PP\n");
-  fd = open(output_text, O_WRONLY);
+  from_client = open(output_text, O_WRONLY);
+
+  return from_client;
+}
+
+/*=========================
+  server_handshake 
+  args: int * to_client
+
+  Performs the server side pipe 3 way handshake.
+  Sets *to_client to the file descriptor to the downstream pipe (Client's private pipe).
+
+  returns the file descriptor for the upstream pipe (see server setup).
+  =========================*/
+int server_handshake(int *to_client) {
+  // connect to PP
   int num = 8;
   write(fd, &num, sizeof(int)); // should be random int
 

@@ -11,19 +11,18 @@
   =========================*/
 int server_setup() {
   int from_client = 0;
-  char *pipe_name = "WKP";
-  mkfifo(pipe_name, 0666);
+  mkfifo(WKP, 0666);
 
   // waiting for connection
   printf("waiting for connection\n");
-  int fd = open(pipe_name, O_RDONLY);
+  int fd = open(WKP, O_RDONLY);
   char output_text[200];
   read(fd, output_text, 200);
   
   // got connection
   printf("got connection\n");
   close(fd);
-  remove(pipe_name);
+  remove(WKP);
 
   printf("connect to PP\n");
   from_client = open(output_text, O_WRONLY);
@@ -73,11 +72,9 @@ int client_handshake(int *to_server) {
   sprintf(pipe_name, "%d_pipe", pid);
   mkfifo(pipe_name, 0666);
 
-  char *server_pipe = "WKP";
-
   int fd;
   printf("connecting\n");
-  fd = open(server_pipe, O_RDWR);
+  fd = open(WKP, O_RDWR);
   write(fd, pipe_name, sizeof(pipe_name));
 
   int ack_number;

@@ -22,8 +22,6 @@ int server_setup() {
   remove(WKP);
 
   /*
-  printf("connect to PP\n");
-  from_client = open(output_text, O_WRONLY);
   */
 
   return from_client;
@@ -42,18 +40,23 @@ int server_handshake(int *to_client) {
   printf("set up server");
   int from_client = server_setup();
 
+  char output_text[200];
+  read(from_client, output_text, 200);
+
   // connect to PP
+  printf("connect to PP\n");
+  *to_client = open(output_text, O_WRONLY);
+
   int num = 8;
-  write(fd, &num, sizeof(int)); // should be random int
+  write(*to_client, &num, sizeof(int)); // should be random int
 
   int ack_number;
-  read(fd, &ack_number, sizeof(int)); // should be random int
+  read(*to_client, &ack_number, sizeof(int)); // should be random int
 
   if (ack_number == 9) {
     printf("Connection successful\n");
   }
 
-  int from_client;
   return from_client;
 }
 

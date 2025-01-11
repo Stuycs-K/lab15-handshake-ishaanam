@@ -10,19 +10,17 @@
   returns the file descriptor for the upstream pipe.
   =========================*/
 int server_setup() {
-  int from_client = 0;
+  // Step #1
   mkfifo(WKP, 0666);
 
+  // Step #2
   // waiting for connection
   printf("waiting for connection\n");
-  from_client = open(WKP, O_RDONLY);
+  int from_client = open(WKP, O_RDONLY);
 
-  // got connection
-  // printf("got connection\n"); I actually don't think this is getting the connection
+  // Step #4
+  printf("got connection\n");
   remove(WKP);
-
-  /*
-  */
 
   return from_client;
 }
@@ -40,16 +38,20 @@ int server_handshake(int *to_client) {
   printf("set up server");
   int from_client = server_setup();
 
+  // Step #5
   char output_text[200];
   read(from_client, output_text, 200);
 
+  // Step #6
   // connect to PP
   printf("connect to PP\n");
   *to_client = open(output_text, O_WRONLY);
 
+  // Step #7
   int num = 8;
   write(*to_client, &num, sizeof(int)); // should be random int
 
+  // Step #9
   int ack_number;
   read(*to_client, &ack_number, sizeof(int)); // should be random int
 
@@ -72,6 +74,8 @@ int server_handshake(int *to_client) {
   =========================*/
 int client_handshake(int *to_server) {
   int from_server;
+
+  // Step #3
   pid_t pid = getpid();
   char pipe_name[BUFFER_SIZE];
   sprintf(pipe_name, "%d_pipe", pid);
@@ -82,10 +86,16 @@ int client_handshake(int *to_server) {
   fd = open(WKP, O_RDWR);
   write(fd, pipe_name, sizeof(pipe_name));
 
-  int ack_number;
-  read(fd, &ack_number, sizeof(int));
+  int pp = open(pipe_name, O_RDWR);
 
-  write(fd, pipe_name, sizeof(pipe_name));
+  // Step #8
+  remove(pipe_name);
+
+  int ack_number;
+  read(pp, &ack_number, sizeof(int));
+
+  ack_number += 1;
+  write(pp, &ack_number, sizeof(int));
 
   return from_server;
 }

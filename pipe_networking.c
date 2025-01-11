@@ -15,17 +15,16 @@ int server_setup() {
 
   // waiting for connection
   printf("waiting for connection\n");
-  int fd = open(WKP, O_RDONLY);
-  char output_text[200];
-  read(fd, output_text, 200);
-  
+  from_client = open(WKP, O_RDONLY);
+
   // got connection
-  printf("got connection\n");
-  close(fd);
+  // printf("got connection\n"); I actually don't think this is getting the connection
   remove(WKP);
 
+  /*
   printf("connect to PP\n");
   from_client = open(output_text, O_WRONLY);
+  */
 
   return from_client;
 }
@@ -40,6 +39,9 @@ int server_setup() {
   returns the file descriptor for the upstream pipe (see server setup).
   =========================*/
 int server_handshake(int *to_client) {
+  printf("set up server");
+  int from_client = server_setup();
+
   // connect to PP
   int num = 8;
   write(fd, &num, sizeof(int)); // should be random int

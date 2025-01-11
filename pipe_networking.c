@@ -35,7 +35,7 @@ int server_setup() {
   returns the file descriptor for the upstream pipe (see server setup).
   =========================*/
 int server_handshake(int *to_client) {
-  printf("set up server");
+  printf("set up server\n");
   int from_client = server_setup();
 
   // Step #5
@@ -54,6 +54,9 @@ int server_handshake(int *to_client) {
   // Step #9
   int ack_number;
   read(*to_client, &ack_number, sizeof(int)); // should be random int
+
+  ack_number += 1;
+  printf("ack number: %d\n", ack_number);
 
   if (ack_number == 9) {
     printf("Connection successful\n");
@@ -89,12 +92,14 @@ int client_handshake(int *to_server) {
   int pp = open(pipe_name, O_RDWR);
 
   // Step #8
+  printf("%s\n", pipe_name);
   remove(pipe_name);
 
   int ack_number;
   read(pp, &ack_number, sizeof(int));
 
   ack_number += 1;
+  printf("ack number: %d\n", ack_number);
   write(pp, &ack_number, sizeof(int));
 
   return from_server;

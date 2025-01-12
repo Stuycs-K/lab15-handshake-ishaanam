@@ -11,14 +11,17 @@
   =========================*/
 int server_setup() {
   // Step #1
+  printf("Step 1\n");
   mkfifo(WKP, 0666);
 
   // Step #2
   // waiting for connection
+  printf("Step 2\n");
   printf("waiting for connection\n");
-  int from_client = open(WKP, O_RDONLY);
+  int from_client = open(WKP, O_RDONLY, 0666);
 
   // Step #4
+  printf("Step 4\n");
   printf("got connection\n");
   remove(WKP);
 
@@ -39,23 +42,31 @@ int server_handshake(int *to_client) {
   int from_client = server_setup();
 
   // Step #5
+  printf("Step 5\n");
   char output_text[200];
   read(from_client, output_text, 200);
+  printf("pipe name: %s\n", output_text);
 
   // Step #6
   // connect to PP
+  printf("Step 6\n");
   printf("connect to PP\n");
-  *to_client = open(output_text, O_WRONLY);
+  *to_client = open(output_text, O_WRONLY, 0666);
 
   // Step #7
+  printf("Step 7\n");
   int num = 8;
   write(*to_client, &num, sizeof(int)); // should be random int
 
   // Step #9
+  printf("Step 9\n");
   int ack_number;
-  read(*to_client, &ack_number, sizeof(int)); // should be random int
+  int ret = read(from_client, &ack_number, sizeof(int));
 
-  ack_number += 1;
+  if (ret <= 0) {
+    printf("error reaading ack number\n");
+  }
+
   printf("ack number: %d\n", ack_number);
 
   if (ack_number == 9) {
@@ -76,31 +87,32 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
-  int from_server;
-
   // Step #3
+  printf("Step 3\n");
   pid_t pid = getpid();
   char pipe_name[BUFFER_SIZE];
   sprintf(pipe_name, "%d_pipe", pid);
   mkfifo(pipe_name, 0666);
 
-  int fd;
   printf("connecting\n");
-  fd = open(WKP, O_RDWR);
-  write(fd, pipe_name, sizeof(pipe_name));
+  *to_server = open(WKP, O_WRONLY, 0666);
+  write(*to_server, pipe_name, sizeof(pipe_name));
 
-  int pp = open(pipe_name, O_RDWR);
+  int from_server = open(pipe_name, O_RDONLY, 0666);
 
   // Step #8
+  printf("Step 8\n");
   printf("%s\n", pipe_name);
-  remove(pipe_name);
 
   int ack_number;
-  read(pp, &ack_number, sizeof(int));
+  read(from_server, &ack_number, sizeof(int));
+  remove(pipe_name);
 
   ack_number += 1;
   printf("ack number: %d\n", ack_number);
-  write(pp, &ack_number, sizeof(int));
+  if (write(*to_server, &ack_number, sizeof(int)) == -1) {
+    printf("error in writing ack number to server\n");
+  }
 
   return from_server;
 }

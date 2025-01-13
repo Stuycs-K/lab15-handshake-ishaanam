@@ -63,6 +63,7 @@ int server_handshake(int *to_client) {
   printf("Step 9\n");
   int ack_number;
   int ret = read(from_client, &ack_number, sizeof(int));
+  printf("read from client\n");
 
   if (ret <= 0) {
     printf("error reaading ack number\n");
@@ -70,7 +71,7 @@ int server_handshake(int *to_client) {
 
   printf("ack number: %d\n", ack_number);
 
-  if (ack_number == 9) {
+  if (ack_number == num + 1) {
     printf("Connection successful\n");
   }
 
@@ -97,9 +98,11 @@ int client_handshake(int *to_server) {
 
   printf("connecting\n");
   *to_server = open(WKP, O_WRONLY, 0666);
-  write(*to_server, pipe_name, strlen(pipe_name));
+  write(*to_server, pipe_name, strlen(pipe_name)+1);
 
-  int from_server = open(pipe_name, O_RDONLY, 0666);
+  printf("pipe name: %s\n", pipe_name);
+  int from_server = open(pipe_name, O_RDONLY, 0666); // can't open pipe
+  printf("Step 3.5\n");
 
   // Step #8
   printf("Step 8\n");

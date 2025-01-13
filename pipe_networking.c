@@ -1,3 +1,5 @@
+#include <time.h>
+
 #include "pipe_networking.h"
 //UPSTREAM = to the server / from the client
 //DOWNSTREAM = to the client / from the server
@@ -55,7 +57,8 @@ int server_handshake(int *to_client) {
 
   // Step #7
   printf("Step 7\n");
-  int num = 8;
+  srand(time(0));
+  int num = rand() % 101;
   write(*to_client, &num, sizeof(int)); // should be random int
 
   // Step #9

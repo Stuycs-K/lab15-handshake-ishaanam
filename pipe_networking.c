@@ -96,7 +96,7 @@ int client_handshake(int *to_server) {
 
   printf("connecting\n");
   *to_server = open(WKP, O_WRONLY, 0666);
-  write(*to_server, pipe_name, sizeof(pipe_name));
+  write(*to_server, pipe_name, strlen(pipe_name));
 
   int from_server = open(pipe_name, O_RDONLY, 0666);
 

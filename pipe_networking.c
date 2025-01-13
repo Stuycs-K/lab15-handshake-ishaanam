@@ -1,5 +1,3 @@
-#include <time.h>
-
 #include "pipe_networking.h"
 //UPSTREAM = to the server / from the client
 //DOWNSTREAM = to the client / from the server

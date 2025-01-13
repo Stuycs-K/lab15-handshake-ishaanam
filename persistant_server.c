@@ -8,6 +8,7 @@ static void sighandler(int signo) {
         printf("Server disconnected\n");
         close(to_client);
         remove(WKP);
+        exit(1);
     } else if (signo = SIGPIPE) {
         printf("Client disconnected\n");
     }

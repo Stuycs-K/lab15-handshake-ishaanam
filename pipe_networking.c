@@ -135,4 +135,6 @@ int server_connect(int from_client) {
   return to_client;
 }
 
-
+int server_handshake_half(int *to_client, int from_client) {
+    // stuff
+}
